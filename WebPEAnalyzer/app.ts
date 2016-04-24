@@ -1,28 +1,26 @@
-﻿class Greeter {
-    element: HTMLElement;
-    span: HTMLElement;
-    timerToken: number;
-
-    constructor(element: HTMLElement) {
-        this.element = element;
-        this.element.innerHTML += "The time is: ";
-        this.span = document.createElement('span');
-        this.element.appendChild(this.span);
-        this.span.innerText = new Date().toUTCString();
+﻿function analyze(data: ArrayBuffer) {
+    var byteView: Uint8Array = new Uint8Array(data);
+    if (String.fromCharCode(byteView[0]) == 'M' && String.fromCharCode(byteView[1]) == 'Z') {
+        console.log("it is likely PE file");
+    } else {
+        console.log("it is NOT likely PE file");
     }
+}
 
-    start() {
-        this.timerToken = setInterval(() => this.span.innerHTML = new Date().toUTCString(), 500);
+function onFileChange(event: Event) {
+    var fl: FileList = <FileList>this.files;
+    if (fl.length == 0) {
+        return;
     }
-
-    stop() {
-        clearTimeout(this.timerToken);
-    }
-
+    var r: FileReader = new FileReader();
+    r.onloadend = function () {
+        analyze(r.result);
+    };
+    r.readAsArrayBuffer(fl[0]);
 }
 
 window.onload = () => {
-    var el = document.getElementById('content');
-    var greeter = new Greeter(el);
-    greeter.start();
+    var fileInputElem: HTMLInputElement;
+    fileInputElem = <HTMLInputElement>document.getElementById('fileinput');
+    fileInputElem.addEventListener('change', onFileChange);
 };
