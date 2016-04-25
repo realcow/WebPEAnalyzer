@@ -1,38 +1,6 @@
-﻿// PE structure definitions
-class ImageDataDirectory {
-    constructor(public rva: number, public size: number)
-    { }
-}
-
-class ImageFileHeader {
-    Machine: number;
-    NumberOfSections: number;
-    TimeDateStamp: number;
-    PointerToSymbolTable: number;
-    NumberOfSymbols: number;
-    SizeOfOptionalHeader: number;
-    Characteristics: number;
-    static kSize: number = 20;
-}
-
-class ImageSectionHeader {
-    Name: string;
-    PhysicalAddress: number;
-    VirtualSize: number;
-    VirtualAddress: number;
-    SizeOfRawData: number;
-    PointerToRawData: number;
-    PointerToRelocations: number;
-    PointerToLinenumbers: number;
-    NumberOfRelocations: number;
-    NumberOfLinenumbers: number;
-    Characteristics: number;
-    static kSize: number = 40;
-}
-
-// Parse functions
-function parseImageFileHeader(dv: DataView, fileOffset: number): ImageFileHeader {
-    var ifh = new ImageFileHeader;
+﻿// Parse functions
+function parseImageFileHeader(dv: DataView, fileOffset: number): pe.ImageFileHeader {
+    var ifh = new pe.ImageFileHeader;
     ifh.Machine = dv.getUint16(fileOffset + 0x00, true);
     ifh.NumberOfSections = dv.getUint16(fileOffset + 0x02, true);
     ifh.TimeDateStamp = dv.getUint16(fileOffset + 0x04, true);
@@ -43,12 +11,12 @@ function parseImageFileHeader(dv: DataView, fileOffset: number): ImageFileHeader
     return ifh;
 }
 
-function parseImageDataDirectory(dv: DataView, fileOffset: number): ImageDataDirectory {
-    return new ImageDataDirectory(dv.getUint16(fileOffset, true), dv.getUint16(fileOffset + 4, true));
+function parseImageDataDirectory(dv: DataView, fileOffset: number): pe.ImageDataDirectory {
+    return new pe.ImageDataDirectory(dv.getUint16(fileOffset, true), dv.getUint16(fileOffset + 4, true));
 }
 
-function parseImageSectionHeader(dv: DataView, fileOffset: number): ImageSectionHeader {
-    var ish = new ImageSectionHeader;
+function parseImageSectionHeader(dv: DataView, fileOffset: number): pe.ImageSectionHeader {
+    var ish = new pe.ImageSectionHeader;
     ish.Name = "";
     for (var i: number = 0; i < 8; i++) {
         var c = dv.getUint8(fileOffset + i);
@@ -79,19 +47,19 @@ function analyze(data: ArrayBuffer) {
 
     var ntHeaderOffset : number = dataView.getUint32(0x3C, true); // lf_anew
 
-    var ifh: ImageFileHeader = parseImageFileHeader(dataView, ntHeaderOffset + 4);
+    var ifh: pe.ImageFileHeader = parseImageFileHeader(dataView, ntHeaderOffset + 4);
 
     // parse section headers
     console.log("=== Sections ===");
-    var sectionHeaderBaseOffset = ntHeaderOffset + 4 + ImageFileHeader.kSize + ifh.SizeOfOptionalHeader;
-    var sectionHeaders: ImageSectionHeader[] = new Array<ImageSectionHeader>();
+    var sectionHeaderBaseOffset = ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + ifh.SizeOfOptionalHeader;
+    var sectionHeaders: pe.ImageSectionHeader[] = new Array<pe.ImageSectionHeader>();
     for (var i: number = 0; i < ifh.NumberOfSections; i++) {
-        var ish = parseImageSectionHeader(dataView, sectionHeaderBaseOffset + i * ImageSectionHeader.kSize);
+        var ish = parseImageSectionHeader(dataView, sectionHeaderBaseOffset + i * pe.ImageSectionHeader.kSize);
         sectionHeaders.push(ish);
         console.log(ish.Name + ", VA: " + ish.VirtualAddress + ", VirtualSize: " + ish.VirtualSize + ", Offset: " + ish.PointerToRawData);
     }
 
-    var importDir: ImageDataDirectory = parseImageDataDirectory(dataView, ntHeaderOffset + 104);
+    var importDir: pe.ImageDataDirectory = parseImageDataDirectory(dataView, ntHeaderOffset + 104);
 }
 
 function onFileChange(event: Event) {
