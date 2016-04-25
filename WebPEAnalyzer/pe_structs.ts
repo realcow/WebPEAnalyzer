@@ -30,4 +30,22 @@ module pe {
         Characteristics: number;
         static kSize: number = 40;
     }
+
+    export class ImageImportDescriptor {
+        OriginalFirstThunk: number;
+        TimeDateStamp: number;
+        ForwarderChain: number;
+        Name: number;
+        FirstThunk: number;
+        static kSize: number = 20;
+    }
+
+    export class ImageThunkData32 {
+        value: number;
+    }
+
+    export class ImageImportByName {
+        hint: number;
+        name: string;
+    }
 }
