@@ -21,22 +21,49 @@
 </head>
 <body>
   <input id="fileinput" type="file"/>
-  
-  <h1>Import Table</h1>
-  <div class="panel-group" id="import-accordion" role="tablist">
+
+  <div class="panel-group" id="master-accordion" role="tablist">
     <div class="panel panel-default panel-prototype" hidden>
       <div class="panel-heading" role="tab">
         <h4 class="panel-title">
-          <a role="button" data-toggle="collapse" data-parent="#export-accordion"></a>
+          <a role="button" data-toggle="collapse" data-parent="#master-accordion"></a>
         </h4>
       </div>
-      <div class="panel-collapse collapse" role="tabpanel">
-        <ul class="list-group"></ul>
+      <div class="panel-collapse collapse" role="tabpanel"><ul class="list-group"></ul></div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading" role="tab">
+        <h4 class="panel-title">
+          <a role="button" data-toggle="collapse" data-parent="#master-accordion" href="#collapse-section">Sections</a>
+        </h4>
+      </div>
+      <div id="collapse-section" class="panel-collapse collapse" role="tabpanel">
+        <table id="section-table" class="table"><tr><td>Name</td><td>Virtual Address</td><td>Size</td></tr></table>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading" role="tab">
+        <h4 class="panel-title">
+          <a role="button" data-toggle="collapse" data-parent="#master-accordion" href="#collapse-import">Imports</a>
+        </h4>
+      </div>
+      <div id="collapse-import" class="panel-collapse collapse" role="tabpanel">
+        <div class="panel-group" id="import-accordion" role="tablist"></div>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading" role="tab">
+        <h4 class="panel-title">
+          <a role="button" data-toggle="collapse" data-parent="#master-accordion" href="#collapse-export">Exports</a>
+        </h4>
+      </div>
+      <div id="collapse-export" class="panel-collapse collapse" role="tabpanel">
+        <div class="panel-group" id="export-accordion" role="tablist"></div>
       </div>
     </div>
   </div>
-
-  <h1>Export Table</h1>
-  <div class="panel-group" id="export-accordion" role="tablist"></div>
 </body>
 </html>

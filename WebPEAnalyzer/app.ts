@@ -1,7 +1,7 @@
 ﻿/// <reference path="jquery.d.ts" />
 
-function addDllImport(dll: string, names: string[]) {
-    var accordion = $("#import-accordion");
+function addDllImport(accordionName: string, dll: string, names: string[]) {
+    var accordion = $("#" + accordionName);
     var newPanel = $(".panel-prototype").clone().show();
     newPanel.removeClass("panel-prototype");
     newPanel[0].firstElementChild.id = "heading" + accordion[0].childElementCount;
@@ -20,8 +20,21 @@ function addDllImport(dll: string, names: string[]) {
 
 function analyze(data: ArrayBuffer) {
     var pm = new PEModule(data);
-    for (var i = 0; i < pm.importedDlls.length; i++) {
-        addDllImport(pm.importedDlls[i].name, pm.importedDlls[i].importSymbols);
+    var i: number;
+    var sectionsNames: string[] = [];
+    var sectionTable: HTMLTableElement = <HTMLTableElement>document.getElementById('section-table');
+    for (i = 0; i < pm.sectionHeaders.length; i++) {
+        var row: HTMLTableRowElement = <HTMLTableRowElement>sectionTable.insertRow(1);
+        var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
+        cell.innerText = pm.sectionHeaders[i].Name;
+        cell = <HTMLTableCellElement>row.insertCell(1);
+        cell.innerText = String(pm.sectionHeaders[i].VirtualAddress);
+        cell = <HTMLTableCellElement>row.insertCell(2);
+        cell.innerText = String(pm.sectionHeaders[i].VirtualSize);
+    }
+
+    for (i = 0; i < pm.importedDlls.length; i++) {
+        addDllImport("import-accordion", pm.importedDlls[i].name, pm.importedDlls[i].importSymbols);
     }
 }
 
