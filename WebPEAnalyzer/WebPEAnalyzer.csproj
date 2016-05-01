@@ -29,6 +29,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="jquery.d.ts" />
+    <TypeScriptCompile Include="pe_module.ts" />
     <TypeScriptCompile Include="pe_structs.ts" />
   </ItemGroup>
   <ItemGroup>
