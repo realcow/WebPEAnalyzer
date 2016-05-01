@@ -8,6 +8,7 @@ function addDllImport(accordionName: string, dll: string, names: string[]) {
     var headingA: HTMLAnchorElement = <HTMLAnchorElement>(newPanel[0].firstElementChild.firstElementChild.firstElementChild);
     newPanel[0].lastElementChild.id = "collapse" + accordion[0].childElementCount;
     headingA.href = "#" + newPanel[0].lastElementChild.id;
+    headingA.dataset['parent'] = '#' + accordionName;
     headingA.innerHTML = dll;
 
     var collapseUl: HTMLUListElement = <HTMLUListElement>(newPanel[0].lastElementChild.firstElementChild);
