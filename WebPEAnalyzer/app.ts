@@ -29,9 +29,9 @@ function analyze(data: ArrayBuffer) {
         var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
         cell.innerText = pm.sectionHeaders[i].Name;
         cell = <HTMLTableCellElement>row.insertCell(1);
-        cell.innerText = String(pm.sectionHeaders[i].VirtualAddress);
+        cell.innerText = '0x' + pm.sectionHeaders[i].VirtualAddress.toString(16).toUpperCase();
         cell = <HTMLTableCellElement>row.insertCell(2);
-        cell.innerText = String(pm.sectionHeaders[i].VirtualSize);
+        cell.innerText = '0x' + pm.sectionHeaders[i].VirtualSize.toString(16).toUpperCase();
     }
 
     for (i = 0; i < pm.importedDlls.length; i++) {
