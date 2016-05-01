@@ -40,6 +40,21 @@ module pe {
         static kSize: number = 20;
     }
 
+    export class ImageExportDirectory {
+        /*DWORD*/ Characteristics: number;
+        /*DWORD*/ TimeDateStamp: number;
+        /*WORD */ MajorVersion: number;
+        /*WORD */ MinorVersion: number;
+        /*DWORD*/ Name: number;
+        /*DWORD*/ Base: number;
+        /*DWORD*/ NumberOfFunctions: number;
+        /*DWORD*/ NumberOfNames: number;
+        /*DWORD*/ AddressOfFunctions: number;     // RVA from base of image
+        /*DWORD*/ AddressOfNames: number;         // RVA from base of image
+        /*DWORD*/ AddressOfNameOrdinals: number;  // RVA from base of image
+        static kSize: number = 40;
+    }
+
     export class ImageThunkData32 {
         value: number;
     }

@@ -3,13 +3,18 @@
     importSymbols: string[];
 }
 
+class ExportEntry {
+    name: string;
+    rva: number;
+}
+
 class PEModule {
     ifh: pe.ImageFileHeader;
     sectionHeaders: pe.ImageSectionHeader[] = [];
     importedDlls: DllImportInfo[] = [];
+    exportedFunctions: ExportEntry[] = [];
 
     constructor(data: ArrayBuffer) {
-        var byteView: Uint8Array = new Uint8Array(data);
         var dataView: DataView = new DataView(data);
 
         if (dataView.getUint16(0, true) != 0x5A4D /*MZ*/) {
@@ -19,17 +24,34 @@ class PEModule {
         var ntHeaderOffset: number = dataView.getUint32(0x3C, true); // lf_anew
         this.ifh = this.parseImageFileHeader(dataView, ntHeaderOffset + 4);
 
-        // parse section headers
-        var sectionHeaderBaseOffset = ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + this.ifh.SizeOfOptionalHeader;
+        this.parseSection(dataView, ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + this.ifh.SizeOfOptionalHeader);
+        this.parseExport(dataView, ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + 0x60);
+        this.parseImport(dataView, ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + 0x68);
+    }
+
+    parseSection(dataView: DataView, sectionHeaderBaseOffset: number) {
         for (var i: number = 0; i < this.ifh.NumberOfSections; i++) {
             var ish = this.parseImageSectionHeader(dataView, sectionHeaderBaseOffset + i * pe.ImageSectionHeader.kSize);
             this.sectionHeaders.push(ish);
         }
-    
-        // parse import
-        var importDir: pe.ImageDataDirectory = this.parseImageDataDirectory(dataView, ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + 0x68);
+    }
 
-        // parse dll imports
+    parseExport(dataView: DataView, directoryEntryExportOffset: number) {
+        var exportDir: pe.ImageDataDirectory = this.parseImageDataDirectory(dataView, directoryEntryExportOffset);
+        var ied = this.parseImageExportDirectory(dataView, this.RVAtoFileOffset(exportDir.rva));
+        var namesOffset = this.RVAtoFileOffset(ied.AddressOfNames);
+        var addressesOffset = this.RVAtoFileOffset(ied.AddressOfFunctions);
+        for (var i = 0; i < ied.NumberOfNames; i++) {
+            var ee: ExportEntry = new ExportEntry;
+            var nameRva = dataView.getUint32(namesOffset + i * 4, true);
+            ee.name = this.readNullTerminatedString(dataView, this.RVAtoFileOffset(nameRva));
+            ee.rva = dataView.getUint32(addressesOffset + i * 4, true);
+            this.exportedFunctions.push(ee);
+        }
+    }
+
+    parseImport(dataView: DataView, directoryEntryImportOffset: number) {
+        var importDir: pe.ImageDataDirectory = this.parseImageDataDirectory(dataView, directoryEntryImportOffset);
         var i = this.RVAtoFileOffset(importDir.rva);
         while (1) {
             var iid: pe.ImageImportDescriptor = this.parseImageImportDescriptor(dataView, i);
@@ -123,6 +145,22 @@ class PEModule {
         importByName.hint = dv.getUint16(fileOffset + 0x00, true);
         importByName.name = this.readNullTerminatedString(dv, fileOffset + 2);
         return importByName;
+    }
+
+    parseImageExportDirectory(dv: DataView, fileOffset: number): pe.ImageExportDirectory {
+        var ied = new pe.ImageExportDirectory;
+        ied.Characteristics = dv.getUint32(fileOffset + 0x00, true);
+        ied.TimeDateStamp = dv.getUint32(fileOffset + 0x04, true);
+        ied.MajorVersion = dv.getUint16(fileOffset + 0x08, true);
+        ied.MinorVersion = dv.getUint16(fileOffset + 0x0A, true);
+        ied.Name = dv.getUint32(fileOffset + 0x0C, true);
+        ied.Base = dv.getUint32(fileOffset + 0x10, true);
+        ied.NumberOfFunctions = dv.getUint32(fileOffset + 0x14, true);
+        ied.NumberOfNames = dv.getUint32(fileOffset + 0x18, true);
+        ied.AddressOfFunctions= dv.getUint32(fileOffset + 0x1C, true);
+        ied.AddressOfNames = dv.getUint32(fileOffset + 0x20, true);
+        ied.AddressOfNameOrdinals = dv.getUint32(fileOffset + 0x24, true);
+        return ied;
     }
 
     // PE manipulate functions

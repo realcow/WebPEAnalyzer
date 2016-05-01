@@ -4,10 +4,10 @@ function addDllImport(accordionName: string, dll: string, names: string[]) {
     var accordion = $("#" + accordionName);
     var newPanel = $(".panel-prototype").clone().show();
     newPanel.removeClass("panel-prototype");
-    newPanel[0].firstElementChild.id = "heading" + accordion[0].childElementCount;
+    (<HTMLElement>newPanel[0].firstElementChild).id = "heading" + accordion[0].childElementCount;
     var headingA: HTMLAnchorElement = <HTMLAnchorElement>(newPanel[0].firstElementChild.firstElementChild.firstElementChild);
-    newPanel[0].lastElementChild.id = "collapse" + accordion[0].childElementCount;
-    headingA.href = "#" + newPanel[0].lastElementChild.id;
+    (<HTMLElement>newPanel[0].lastElementChild).id = "collapse" + accordion[0].childElementCount;
+    headingA.href = "#" + (<HTMLElement>newPanel[0].lastElementChild).id;
     headingA.dataset['parent'] = '#' + accordionName;
     headingA.innerHTML = dll;
 
@@ -22,7 +22,6 @@ function addDllImport(accordionName: string, dll: string, names: string[]) {
 function analyze(data: ArrayBuffer) {
     var pm = new PEModule(data);
     var i: number;
-    var sectionsNames: string[] = [];
     var sectionTable: HTMLTableElement = <HTMLTableElement>document.getElementById('section-table');
     for (i = 0; i < pm.sectionHeaders.length; i++) {
         var row: HTMLTableRowElement = <HTMLTableRowElement>sectionTable.insertRow(1);
@@ -36,6 +35,15 @@ function analyze(data: ArrayBuffer) {
 
     for (i = 0; i < pm.importedDlls.length; i++) {
         addDllImport("import-accordion", pm.importedDlls[i].name, pm.importedDlls[i].importSymbols);
+    }
+
+    var exportTable: HTMLTableElement = <HTMLTableElement>document.getElementById('export-table');
+    for (i = 0; i < pm.exportedFunctions.length; i++) {
+        var row: HTMLTableRowElement = <HTMLTableRowElement>exportTable.insertRow(1);
+        var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
+        cell.innerText = pm.exportedFunctions[i].name
+        cell = <HTMLTableCellElement>row.insertCell(1);
+        cell.innerText = '0x' + pm.exportedFunctions[i].rva.toString(16).toUpperCase();
     }
 }
 
