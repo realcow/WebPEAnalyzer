@@ -20,30 +20,36 @@ function addDllImport(accordionName: string, dll: string, names: string[]) {
 }
 
 function analyze(data: ArrayBuffer) {
-    var pm = new PEModule(data);
-    var i: number;
-    var sectionTable: HTMLTableElement = <HTMLTableElement>document.getElementById('section-table');
-    for (i = 0; i < pm.sectionHeaders.length; i++) {
-        var row: HTMLTableRowElement = <HTMLTableRowElement>sectionTable.insertRow(1);
-        var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
-        cell.innerText = pm.sectionHeaders[i].Name;
-        cell = <HTMLTableCellElement>row.insertCell(1);
-        cell.innerText = '0x' + pm.sectionHeaders[i].VirtualAddress.toString(16).toUpperCase();
-        cell = <HTMLTableCellElement>row.insertCell(2);
-        cell.innerText = '0x' + pm.sectionHeaders[i].VirtualSize.toString(16).toUpperCase();
-    }
+    try {
+        var pm = new PEModule(data);
+        var i: number;
+        var sectionTable: HTMLTableElement = <HTMLTableElement>document.getElementById('section-table');
+        for (i = 0; i < pm.sectionHeaders.length; i++) {
+            var row: HTMLTableRowElement = <HTMLTableRowElement>sectionTable.insertRow(1);
+            var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
+            cell.innerText = pm.sectionHeaders[i].Name;
+            cell = <HTMLTableCellElement>row.insertCell(1);
+            cell.innerText = '0x' + pm.sectionHeaders[i].VirtualAddress.toString(16).toUpperCase();
+            cell = <HTMLTableCellElement>row.insertCell(2);
+            cell.innerText = '0x' + pm.sectionHeaders[i].VirtualSize.toString(16).toUpperCase();
+        }
 
-    for (i = 0; i < pm.importedDlls.length; i++) {
-        addDllImport("import-accordion", pm.importedDlls[i].name, pm.importedDlls[i].importSymbols);
-    }
+        for (i = 0; i < pm.importedDlls.length; i++) {
+            addDllImport("import-accordion", pm.importedDlls[i].name, pm.importedDlls[i].importSymbols);
+        }
 
-    var exportTable: HTMLTableElement = <HTMLTableElement>document.getElementById('export-table');
-    for (i = 0; i < pm.exportedFunctions.length; i++) {
-        var row: HTMLTableRowElement = <HTMLTableRowElement>exportTable.insertRow(1);
-        var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
-        cell.innerText = pm.exportedFunctions[i].name
-        cell = <HTMLTableCellElement>row.insertCell(1);
-        cell.innerText = '0x' + pm.exportedFunctions[i].rva.toString(16).toUpperCase();
+        var exportTable: HTMLTableElement = <HTMLTableElement>document.getElementById('export-table');
+        for (i = 0; i < pm.exportedFunctions.length; i++) {
+            var row: HTMLTableRowElement = <HTMLTableRowElement>exportTable.insertRow(1);
+            var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
+            cell.innerText = pm.exportedFunctions[i].name
+            cell = <HTMLTableCellElement>row.insertCell(1);
+            cell.innerText = '0x' + pm.exportedFunctions[i].rva.toString(16).toUpperCase();
+        }
+    } catch (ex) {
+        if (typeof (ex) == 'string') {
+            window.alert(ex);
+        }
     }
 }
 
