@@ -24,7 +24,6 @@ class PEModule {
         for (var i: number = 0; i < this.ifh.NumberOfSections; i++) {
             var ish = this.parseImageSectionHeader(dataView, sectionHeaderBaseOffset + i * pe.ImageSectionHeader.kSize);
             this.sectionHeaders.push(ish);
-            console.log(ish.Name + ", VA: " + ish.VirtualAddress + ", VirtualSize: " + ish.VirtualSize + ", Offset: " + ish.PointerToRawData);
         }
     
         // parse import
