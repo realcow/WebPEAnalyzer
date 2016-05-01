@@ -1,4 +1,6 @@
-﻿function readNullTerminatedString(dv: DataView, fileOffset: number): string {
+﻿/// <reference path="jquery.d.ts" />
+
+function readNullTerminatedString(dv: DataView, fileOffset: number): string {
     var s = "";
     var c, i: number;
     i = fileOffset;
