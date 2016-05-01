@@ -82,6 +82,12 @@ function RVAtoFileOffset(rva: number): number {
     return -1;
 }
 
+class DllImportInfo {
+    name: string;
+    importSymbols: string[];
+}
+var importedDlls: DllImportInfo[];
+
 function analyze(data: ArrayBuffer) {
     var byteView: Uint8Array = new Uint8Array(data);
     var dataView: DataView = new DataView(data);
@@ -106,6 +112,7 @@ function analyze(data: ArrayBuffer) {
     var importDir: pe.ImageDataDirectory = parseImageDataDirectory(dataView, ntHeaderOffset + 4 + pe.ImageFileHeader.kSize + 0x68);
 
     // parse dll imports
+    importedDlls = [];
     var i = RVAtoFileOffset(importDir.rva);
     while (1) {
         var iid: pe.ImageImportDescriptor = parseImageImportDescriptor(dataView, i);
@@ -114,8 +121,9 @@ function analyze(data: ArrayBuffer) {
             break;
         }
 
-        var dllName = readNullTerminatedString(dataView, RVAtoFileOffset(iid.Name));
-        console.log(dllName);
+        var importInfo: DllImportInfo = new DllImportInfo;
+        importInfo.name = readNullTerminatedString(dataView, RVAtoFileOffset(iid.Name));
+        importInfo.importSymbols = [];
 
         var thunk: pe.ImageThunkData32 = new pe.ImageThunkData32();
         var j = RVAtoFileOffset(iid.OriginalFirstThunk);
@@ -126,10 +134,14 @@ function analyze(data: ArrayBuffer) {
                 break;
             }
             var nameEntry = parseImageImportByName(dataView, RVAtoFileOffset(thunk.value));
-            console.log(" - " + nameEntry.name);
+            importInfo.importSymbols.push(nameEntry.name);
         }
-        console.log("\n");
+        importedDlls.push(importInfo);
     }
+
+    for (i = 0; i < importedDlls.length; i++) {
+        addDllImport(importedDlls[i].name, importedDlls[i].importSymbols);
+    }    
 }
 
 function onFileChange(event: Event) {
@@ -142,6 +154,24 @@ function onFileChange(event: Event) {
         analyze(r.result);
     };
     r.readAsArrayBuffer(fl[0]);
+}
+
+function addDllImport(dll: string, names: string[]) {
+    var accordion = $("#import-accordion");
+    var newPanel = $(".panel-prototype").clone().show();
+    newPanel.removeClass("panel-prototype");
+    newPanel[0].firstElementChild.id = "heading" + accordion[0].childElementCount;
+    var headingA: HTMLAnchorElement = <HTMLAnchorElement>(newPanel[0].firstElementChild.firstElementChild.firstElementChild);
+    newPanel[0].lastElementChild.id = "collapse" + accordion[0].childElementCount;
+    headingA.href = "#" + newPanel[0].lastElementChild.id;
+    headingA.innerHTML = dll;
+
+    var collapseUl: HTMLUListElement = <HTMLUListElement>(newPanel[0].lastElementChild.firstElementChild);
+    var i;
+    for (i in names) {
+        collapseUl.innerHTML += "<li class='list-group-item'>" + names[i] + "</li>";
+    }
+    newPanel.appendTo(accordion);
 }
 
 window.onload = () => {

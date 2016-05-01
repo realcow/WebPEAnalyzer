@@ -2,19 +2,40 @@
 
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>TypeScript HTML App</title>
-    <link rel="stylesheet" href="app.css" type="text/css" />
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-2.2.2.min.js" integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI=" crossorigin="anonymous"></script>
-    <script src="pe_structs.js"></script>
-    <script src="app.js"></script>
+  <meta charset="utf-8" />
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-2.2.2.min.js" integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI=" crossorigin="anonymous"></script>
+
+  <!-- bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="app.css" type="text/css" />
+  <script src="pe_structs.js"></script>
+  <script src="app.js"></script>
+
+  <title>Web PE Parser</title>
+
 </head>
 <body>
-    <h1>TypeScript HTML App</h1>
+  <input id="fileinput" type="file"/>
+  
+  <h1>Import Table</h1>
+  <div class="panel-group" id="import-accordion" role="tablist">
+    <div class="panel panel-default panel-prototype" hidden>
+      <div class="panel-heading" role="tab">
+        <h4 class="panel-title">
+          <a role="button" data-toggle="collapse" data-parent="#export-accordion"></a>
+        </h4>
+      </div>
+      <div class="panel-collapse collapse" role="tabpanel">
+        <ul class="list-group"></ul>
+      </div>
+    </div>
+  </div>
 
-    <div id="content"></div>
-
-    <input id="fileinput" type="file"/>
+  <h1>Export Table</h1>
+  <div class="panel-group" id="export-accordion" role="tablist"></div>
 </body>
 </html>
