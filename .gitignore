@@ -1,0 +1,6 @@
+*.user
+*.js
+*.js.map
+/WebPEAnalyzer/bin
+/WebPEAnalyzer/obj
+/.vs/WebPEAnalyzer/v14/.suo
