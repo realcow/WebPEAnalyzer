@@ -38,6 +38,9 @@ class PEModule {
 
     parseExport(dataView: DataView, directoryEntryExportOffset: number) {
         var exportDir: pe.ImageDataDirectory = this.parseImageDataDirectory(dataView, directoryEntryExportOffset);
+        if (exportDir.rva == 0) {
+            return;
+        }
         var ied = this.parseImageExportDirectory(dataView, this.RVAtoFileOffset(exportDir.rva));
         var namesOffset = this.RVAtoFileOffset(ied.AddressOfNames);
         var addressesOffset = this.RVAtoFileOffset(ied.AddressOfFunctions);
