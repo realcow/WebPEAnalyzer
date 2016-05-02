@@ -75,8 +75,13 @@ class PEModule {
                 if (thunk.value == 0) {
                     break;
                 }
-                var nameEntry = this.parseImageImportByName(dataView, this.RVAtoFileOffset(thunk.value));
-                importInfo.importSymbols.push(nameEntry.name);
+                // import by ordinal
+                if ((thunk.value & 0x80000000) != 0) {
+                    importInfo.importSymbols.push((thunk.value & ~0x80000000).toString());
+                } else {
+                    var nameEntry = this.parseImageImportByName(dataView, this.RVAtoFileOffset(thunk.value));
+                    importInfo.importSymbols.push(nameEntry.name);
+                }
             }
             this.importedDlls.push(importInfo);
         }
