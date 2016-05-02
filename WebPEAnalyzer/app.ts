@@ -53,20 +53,43 @@ function analyze(data: ArrayBuffer) {
     }
 }
 
-function onFileChange(event: Event) {
-    var fl: FileList = <FileList>this.files;
-    if (fl.length == 0) {
-        return;
-    }
+function readAndAnalyzePE(file: File) {
     var r: FileReader = new FileReader();
     r.onloadend = function () {
         analyze(r.result);
     };
-    r.readAsArrayBuffer(fl[0]);
+    r.readAsArrayBuffer(file);
+}
+
+function onDrag(e: Event) {
+    // supress default behaviour
+    e.stopPropagation();
+    e.preventDefault();
+
+    (<HTMLElement>e.target).className = (e.type == "dragover" ? "over" : "");
 }
 
 window.onload = () => {
     var fileInputElem: HTMLInputElement;
     fileInputElem = <HTMLInputElement>document.getElementById('fileinput');
-    fileInputElem.addEventListener('change', onFileChange);
+    fileInputElem.addEventListener('change', function (event: Event) {
+        var fl: FileList = <FileList>this.files;
+        if (fl.length == 0) {
+            return;
+        }
+        var file: File = fl[0];
+        $("#target-filename").html(file.name);
+        readAndAnalyzePE(file);
+        $("#master-accordion").show();
+    });
+
+    $('#drop-zone')[0].addEventListener('dragover', onDrag, false);
+    $('#drop-zone')[0].addEventListener('dragleave', onDrag, false);
+    $('#drop-zone')[0].addEventListener('drop', function (e) {
+        onDrag(e);
+        var file: File = e.dataTransfer.files[0];
+        $("#target-filename").html(file.name);
+        readAndAnalyzePE(file);
+        $("#master-accordion").show();
+    }, false);
 };
