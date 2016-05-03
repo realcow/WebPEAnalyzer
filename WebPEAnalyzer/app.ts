@@ -19,11 +19,22 @@ function addDllImport(accordionName: string, dll: string, names: string[]) {
     newPanel.appendTo(accordion);
 }
 
+function removeChildren(e: Element) {
+    while (e.firstElementChild != null) {
+        e.removeChild(e.firstChild);
+    }
+}
+
 function analyze(data: ArrayBuffer) {
     try {
         var pm = new PEModule(data);
         var i: number;
+
+        // display section info
         var sectionTable: HTMLTableElement = <HTMLTableElement>document.getElementById('section-table');
+        while (sectionTable.rows.length > 1) {
+            sectionTable.deleteRow(1);
+        }
         for (i = 0; i < pm.sectionHeaders.length; i++) {
             var row: HTMLTableRowElement = <HTMLTableRowElement>sectionTable.insertRow(1);
             var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
@@ -34,10 +45,14 @@ function analyze(data: ArrayBuffer) {
             cell.innerText = '0x' + pm.sectionHeaders[i].VirtualSize.toString(16).toUpperCase();
         }
 
+        // display import info
+        removeChildren($('#import-accordion')[0]);
         for (i = 0; i < pm.importedDlls.length; i++) {
             addDllImport("import-accordion", pm.importedDlls[i].name, pm.importedDlls[i].importSymbols);
         }
 
+        // display export info
+        removeChildren($('#export-accordion')[0]);
         var exportTable: HTMLTableElement = <HTMLTableElement>document.getElementById('export-table');
         for (i = 0; i < pm.exportedFunctions.length; i++) {
             var row: HTMLTableRowElement = <HTMLTableRowElement>exportTable.insertRow(1);
