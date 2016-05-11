@@ -52,7 +52,6 @@ function analyze(data: ArrayBuffer) {
         }
 
         // display export info
-        removeChildren($('#export-accordion')[0]);
         var exportTable: HTMLTableElement = <HTMLTableElement>document.getElementById('export-table');
         for (i = 0; i < pm.exportedFunctions.length; i++) {
             var row: HTMLTableRowElement = <HTMLTableRowElement>exportTable.insertRow(1);
