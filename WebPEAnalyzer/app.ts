@@ -53,12 +53,19 @@ function analyze(data: ArrayBuffer) {
 
         // display export info
         var exportTable: HTMLTableElement = <HTMLTableElement>document.getElementById('export-table');
+        while (exportTable.rows.length > 1) {
+            exportTable.deleteRow(1);
+        }
         for (i = 0; i < pm.exportedFunctions.length; i++) {
             var row: HTMLTableRowElement = <HTMLTableRowElement>exportTable.insertRow(1);
             var cell: HTMLTableCellElement = <HTMLTableCellElement>row.insertCell(0);
-            cell.innerText = pm.exportedFunctions[i].name
+            var name = pm.exportedFunctions[i].name;
+            var ordinal = pm.exportedFunctions[i].ordinal;
+            cell.innerText = name ? name : '(' + ordinal.toString() + ')';
             cell = <HTMLTableCellElement>row.insertCell(1);
             cell.innerText = '0x' + pm.exportedFunctions[i].rva.toString(16).toUpperCase();
+            cell = <HTMLTableCellElement>row.insertCell(2);
+            cell.innerText = ordinal.toString();
         }
     } catch (ex) {
         if (typeof (ex) == 'string') {

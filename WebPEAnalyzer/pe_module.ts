@@ -1,4 +1,6 @@
-﻿class DllImportInfo {
+﻿function nop() { }
+
+class DllImportInfo {
     name: string;
     importSymbols: string[];
 }
@@ -6,6 +8,7 @@
 class ExportEntry {
     name: string;
     rva: number;
+    ordinal: number;
 }
 
 class PEModule {
@@ -48,8 +51,35 @@ class PEModule {
             var ee: ExportEntry = new ExportEntry;
             var nameRva = dataView.getUint32(namesOffset + i * 4, true);
             ee.name = this.readNullTerminatedString(dataView, this.RVAtoFileOffset(nameRva));
-            ee.rva = dataView.getUint32(addressesOffset + i * 4, true);
             this.exportedFunctions.push(ee);
+        }
+
+        var allOrdinals: Object = {};
+        for (var i = 0; i < ied.NumberOfFunctions; i++) {
+            allOrdinals[i] = false;
+        }
+        var ordinalsOffset = this.RVAtoFileOffset(ied.AddressOfNameOrdinals);
+        for (var i = 0; i < ied.NumberOfNames; i++) {
+            var index = dataView.getUint16(ordinalsOffset + i * 2, true);
+            this.exportedFunctions[i].ordinal = ied.Base + index;
+            this.exportedFunctions[i].rva = dataView.getUint32(addressesOffset + index * 4, true);
+            allOrdinals[index] = true;
+        }
+
+        // parse symbols which is exported only by ordinal
+        for (var i = 0; i < ied.NumberOfFunctions; i++) {
+            if (allOrdinals[i] == false) {
+                // skip empty entries
+                var rva = dataView.getUint32(addressesOffset + i * 4, true);
+                if (rva == 0) {
+                    continue;
+                }
+                var ee: ExportEntry = new ExportEntry;
+                ee.name = null;
+                ee.ordinal = ied.Base + i;
+                ee.rva = rva;
+                this.exportedFunctions.push(ee);
+            }
         }
     }
 
